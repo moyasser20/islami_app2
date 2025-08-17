@@ -21,7 +21,7 @@ class _SplashscreenState extends State<Splashscreen> {
   void initState() {
     super.initState();
     Future.delayed(Duration(milliseconds: 3300) ,(){
-      Navigator.pushReplacementNamed(context, AppRoutes.layoutScreen);
+      Navigator.pushReplacementNamed(context, AppRoutes.onBoardingScreen);
     });
   }
   @override
