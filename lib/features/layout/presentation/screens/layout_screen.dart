@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:islami_app2/core/constants/app_assets.dart';
 import 'package:islami_app2/core/theme/app_colors.dart';
-import 'package:islami_app2/features/layout/presentation/screens/hadith/hadithScreen.dart';
+import 'package:islami_app2/features/layout/presentation/screens/hadith/hadith_screen.dart';
 import 'package:islami_app2/features/layout/presentation/screens/quran/quranscreen.dart';
 import 'package:islami_app2/features/layout/presentation/screens/sebha/sebhaScreen.dart';
 
@@ -9,22 +9,22 @@ import '../widgets/custome_nav_bar_item.dart';
 import 'radio/RadioScreen.dart';
 import 'time/TimeScreen.dart';
 
-class layoutScreen extends StatefulWidget {
-  const layoutScreen({super.key});
+class LayoutScreen extends StatefulWidget {
+  const LayoutScreen({super.key});
 
   @override
-  State<layoutScreen> createState() => _layoutScreenState();
+  State<LayoutScreen> createState() => _LayoutScreenState();
 }
 
-class _layoutScreenState extends State<layoutScreen> {
+class _LayoutScreenState extends State<LayoutScreen> {
   int selectedIndex = 0;
 
-  List<Widget> tabs = [
-    quranScreen(),
-    hadithScreen(),
-    sebhScreen(),
-    RadioScreen(),
-    TimeScreen(),
+  final List<Widget> tabs = [
+    QuranScreen(),
+    HadithScreen(),
+    SebhaScreen(),
+    const RadioScreen(),
+    const TimeScreen(),
   ];
 
   @override
@@ -60,7 +60,7 @@ class _layoutScreenState extends State<layoutScreen> {
           ),
           BottomNavigationBarItem(
             label: "Sebha",
-            icon:CustomNavBarItem(
+            icon: CustomNavBarItem(
               selectedIndex: selectedIndex,
               navBarItem: 2,
               IconPath: AppAssets.sebhaIcn,
@@ -68,7 +68,7 @@ class _layoutScreenState extends State<layoutScreen> {
           ),
           BottomNavigationBarItem(
             label: "Radio",
-            icon:CustomNavBarItem(
+            icon: CustomNavBarItem(
               selectedIndex: selectedIndex,
               navBarItem: 3,
               IconPath: AppAssets.radioIcn,
@@ -84,7 +84,13 @@ class _layoutScreenState extends State<layoutScreen> {
           ),
         ],
       ),
-      body: tabs[selectedIndex],
+
+      // 👇 هنا التغيير
+      body: IndexedStack(
+        index: selectedIndex,
+        children: tabs,
+      ),
     );
   }
 }
+
