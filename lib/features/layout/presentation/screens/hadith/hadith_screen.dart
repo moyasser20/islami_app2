@@ -63,16 +63,28 @@ class _HadithScreenState extends State<HadithScreen> {
 
     for (var element in allHadith) {
       String singleHadith = element.trim();
+      if (singleHadith.isEmpty) continue;
+
       int index = singleHadith.indexOf("\n");
-      String hadithTitle = singleHadith.substring(0, index);
-      String hadithContent = singleHadith.substring(index + 1);
+
+      String hadithTitle;
+      String hadithContent;
+
+      if (index != -1) {
+        hadithTitle = singleHadith.substring(0, index).trim();
+        hadithContent = singleHadith.substring(index + 1).trim();
+      } else {
+        hadithTitle = "حديث";
+        hadithContent = singleHadith;
+      }
 
       var hadithData =
-          HadithData(hadithTitle: hadithTitle, hadithContent: hadithContent);
+      HadithData(hadithTitle: hadithTitle, hadithContent: hadithContent);
 
       hadithDataList.add(hadithData);
-
-      setState(() {});
     }
+
+    setState(() {});
+
   }
 }
