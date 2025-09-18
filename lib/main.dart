@@ -2,7 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:islami_app2/core/routes/app_routes_name.dart';
 import 'package:islami_app2/core/routes/routes.dart';
 
-void main() {
+import 'core/di/di.dart';
+
+void main() async {
+
+  WidgetsFlutterBinding.ensureInitialized();
+
+  await configureDependencies();
+
   runApp(const MyApp());
 }
 

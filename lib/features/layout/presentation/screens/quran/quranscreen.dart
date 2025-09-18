@@ -9,8 +9,8 @@ import '../../../models/surah_data_model.dart';
 import 'widgets/recent_card_widget.dart';
 import 'widgets/sura_card_widget.dart';
 
-class quranScreen extends StatelessWidget {
-  quranScreen({super.key});
+class QuranScreen extends StatelessWidget {
+  QuranScreen({super.key});
 
   List<MostRecentlyQuranModel> recentDataList = [
     MostRecentlyQuranModel(

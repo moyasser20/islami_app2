@@ -19,7 +19,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 version: 1.0.0+1
 
 environment:
-  sdk: ^3.7.0
+  sdk: ">=3.2.1 <4.0.0"
 
 # Dependencies specify other packages that your package needs in order to work.
 # To automatically upgrade your package dependencies to the latest versions
@@ -36,6 +36,19 @@ dependencies:
   cupertino_icons: ^1.0.8
   animate_do: ^4.2.0
   smooth_page_indicator: ^1.2.1
+  carousel_slider: ^5.1.1
+  just_audio: ^0.10.5
+  injectable: ^2.5.1
+  dartz: ^0.10.1
+  get_it: ^8.2.0
+  retrofit: ^4.0.1
+  logger: ^2.6.1
+  json_annotation: ^4.9.0
+  dio: ^5.9.0
+  flutter_bloc: ^9.1.1
+  shared_preferences: ^2.5.3
+  intl: ^0.18.1
+
 
 dev_dependencies:
   flutter_test:
@@ -47,6 +60,11 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^5.0.0
+  injectable_generator: ^2.6.2
+  json_serializable: ^6.8.0
+  retrofit_generator: ^8.2.1
+  build_runner: ^2.4.13
+
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
