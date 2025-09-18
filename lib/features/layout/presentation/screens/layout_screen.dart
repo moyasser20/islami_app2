@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 import 'package:islami_app2/core/constants/app_assets.dart';
 import 'package:islami_app2/core/di/di.dart';
 import 'package:islami_app2/core/theme/app_colors.dart';
@@ -7,10 +8,11 @@ import 'package:islami_app2/features/layout/presentation/screens/hadith/hadith_s
 import 'package:islami_app2/features/layout/presentation/screens/quran/quranscreen.dart';
 import 'package:islami_app2/features/layout/presentation/screens/radio/presentation/viewmodel/radio_cubit.dart';
 import 'package:islami_app2/features/layout/presentation/screens/sebha/sebhaScreen.dart';
+import 'package:islami_app2/features/layout/presentation/screens/time/presentation/viewmodel/time_cubit.dart';
 
 import '../widgets/custome_nav_bar_item.dart';
 import 'radio/presentation/view/RadioScreen.dart';
-import 'time/time_screen.dart';
+import 'time/presentation/view/time_screen.dart';
 
 class LayoutScreen extends StatefulWidget {
   const LayoutScreen({super.key});
@@ -22,18 +24,34 @@ class LayoutScreen extends StatefulWidget {
 class _LayoutScreenState extends State<LayoutScreen> {
   int selectedIndex = 0;
 
-  final List<Widget> tabs = [
-    QuranScreen(),
-    HadithScreen(),
-    SebhaScreen(),
-    BlocProvider(
-        create: (_) => getIt<RadioCubit>()..getRadioData(),
-        child: const RadioScreen()),
-    TimeScreen(),
-  ];
+  String getTodayDateString() {
+    final now = DateTime.now();
+    return DateFormat('dd-MM-yyyy').format(now);
+  }
 
   @override
   Widget build(BuildContext context) {
+    final todayDate = getTodayDateString();
+
+    final List<Widget> tabs = [
+      QuranScreen(),
+      HadithScreen(),
+      SebhaScreen(),
+      BlocProvider(
+        create: (_) => getIt<RadioCubit>()..getRadioData(),
+        child: const RadioScreen(),
+      ),
+      BlocProvider(
+        create: (_) => getIt<TimeCubit>()
+          ..getPrayerTimes(
+            date: todayDate,
+            city: "Cairo",
+            country: "Egypt",
+          ),
+        child: const TimeScreen(),
+      ),
+    ];
+
     return Scaffold(
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: selectedIndex,
@@ -89,8 +107,6 @@ class _LayoutScreenState extends State<LayoutScreen> {
           ),
         ],
       ),
-
-      // 👇 هنا التغيير
       body: IndexedStack(
         index: selectedIndex,
         children: tabs,
