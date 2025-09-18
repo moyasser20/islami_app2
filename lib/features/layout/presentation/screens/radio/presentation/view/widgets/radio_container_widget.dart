@@ -59,7 +59,7 @@ class _RadioContainerWidgetState extends State<RadioContainerWidget> {
   Widget build(BuildContext context) {
     var size = MediaQuery.of(context).size;
     return Container(
-      width: size.width * 0.5,
+      width: size.width * 0.9,
       height: size.height * 0.15,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
@@ -70,6 +70,7 @@ class _RadioContainerWidgetState extends State<RadioContainerWidget> {
         ),
       ),
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(
@@ -105,7 +106,7 @@ class _RadioContainerWidgetState extends State<RadioContainerWidget> {
           )
         ],
       ),
-    ).setHorizontalAndVerticalPadding(context, 0.05, 0.01);
+    ).setHorizontalAndVerticalPadding(context, 0.03, 0.01);
   }
 }
 

@@ -10,7 +10,7 @@ import 'package:islami_app2/features/layout/presentation/screens/sebha/sebhaScre
 
 import '../widgets/custome_nav_bar_item.dart';
 import 'radio/presentation/view/RadioScreen.dart';
-import 'time/TimeScreen.dart';
+import 'time/time_screen.dart';
 
 class LayoutScreen extends StatefulWidget {
   const LayoutScreen({super.key});

@@ -31,94 +31,78 @@ class _RadioScreenState extends State<RadioScreen> {
       decoration: BoxDecoration(
         image: DecorationImage(
           image: AssetImage(AppAssets.RadioTabBg),
-          fit: BoxFit.fill,
+          fit: BoxFit.cover,
         ),
       ),
       child: SafeArea(
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const SizedBox(height: 12),
-              Image.asset(
-                "assets/images/islami_image.png",
-                height: size.height * 0.15,
-              ).setHorizontalPadding(context, 0.15),
-              const SizedBox(height: 20),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+        child: BlocConsumer<RadioCubit, RadioState>(
+          listener: (context, state) {
+            if (state is RadioErrorState) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text(state.message)),
+              );
+            }
+          },
+          builder: (context, state) {
+            if (state is RadioLoadingState) {
+              return const Center(child: CircularProgressIndicator());
+            } else if (state is RadioSuccessState) {
+              final radios = state.radios;
+              final reciters = state.reciters;
+
+              return ListView(
                 children: [
-                  CustomTabButton(
-                    title: "Radio",
-                    isSelected: selectedRadio == 0,
-                    onTap: () => setState(() => selectedRadio = 0),
-                    selectedColor: AppColors.primaryColor,
-                    unselectedColor: AppColors.secondaryColor.withOpacity(0.7),
-                  ),
-                  CustomTabButton(
-                    title: "Reciters",
-                    isSelected: selectedRadio == 1,
-                    onTap: () => setState(() => selectedRadio = 1),
-                    selectedColor: AppColors.primaryColor,
-                    unselectedColor: AppColors.secondaryColor.withOpacity(0.7),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 20),
-              BlocConsumer<RadioCubit, RadioState>(
-                listener: (context, state) {
-                  if (state is RadioErrorState) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text(state.message)),
-                    );
-                  }
-                },
-                builder: (context, state) {
-                  if (state is RadioLoadingState) {
-                    return const Center(
-                      child: CircularProgressIndicator(),
-                    );
-                  } else if (state is RadioSuccessState) {
-                    if (selectedRadio == 0) {
-                      final radios = state.radios;
-                      return ListView.builder(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemCount: radios.length,
-                        itemBuilder: (context, index) {
-                          final radio = radios[index];
-                          return RadioContainerWidget(
-                            radioName: radio.name,
-                            radioUrl: radio.url ?? "",
-                          );
-                        },
-                      );
-                    } else {
-                      final reciters = state.reciters;
-                      return ListView.builder(
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          itemBuilder: (context, index) {
-                            final reciter = reciters[index];
-                            return RadioContainerWidget(
-                                radioName: reciter.name,
-                                radioUrl: reciter.moshaf.first.server ?? "");
-                          },
-                          itemCount: reciters.length);
-                    }
-                  } else if (state is RadioErrorState) {
-                    return Center(
-                      child: Text(
-                        "Error: ${state.message}",
-                        style: const TextStyle(color: Colors.red),
+                  Image.asset(
+                    "assets/images/islami_image.png",
+                    height: size.height * 0.15,
+                  ).setHorizontalPadding(context, 0.15),
+                  const SizedBox(height: 10),
+
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      CustomTabButton(
+                        title: "Radio",
+                        isSelected: selectedRadio == 0,
+                        onTap: () => setState(() => selectedRadio = 0),
+                        selectedColor: AppColors.primaryColor,
+                        unselectedColor:
+                        AppColors.secondaryColor.withOpacity(0.7),
                       ),
-                    );
-                  }
-                  return const SizedBox();
-                },
-              ),
-            ],
-          ),
+                      CustomTabButton(
+                        title: "Reciters",
+                        isSelected: selectedRadio == 1,
+                        onTap: () => setState(() => selectedRadio = 1),
+                        selectedColor: AppColors.primaryColor,
+                        unselectedColor:
+                        AppColors.secondaryColor.withOpacity(0.7),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+
+                  if (selectedRadio == 0)
+                    ...radios.map((radio) => RadioContainerWidget(
+                      radioName: radio.name,
+                      radioUrl: radio.url ?? "",
+                    ))
+                  else
+                    ...reciters.map((reciter) => RadioContainerWidget(
+                      radioName: reciter.name,
+                      radioUrl: reciter.moshaf.first.server ?? "",
+                    )),
+                ],
+              );
+            } else if (state is RadioErrorState) {
+              return Center(
+                child: Text(
+                  "Error: ${state.message}",
+                  style: const TextStyle(color: Colors.red),
+                ),
+              );
+            }
+            return const SizedBox();
+          },
         ),
       ),
     );
