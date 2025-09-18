@@ -13,14 +13,6 @@ import '../viewmodel/time_states.dart';
 class TimeScreen extends StatelessWidget {
   const TimeScreen({super.key});
 
-  DateTime _parseTime(String? time, DateTime now) {
-    if (time == null || time.isEmpty) return now;
-    final parts = time.split(':');
-    final hour = int.tryParse(parts[0]) ?? 0;
-    final minute = int.tryParse(parts[1]) ?? 0;
-    return DateTime(now.year, now.month, now.day, hour, minute);
-  }
-
   @override
   Widget build(BuildContext context) {
     var size = MediaQuery.of(context).size;
@@ -54,33 +46,11 @@ class TimeScreen extends StatelessWidget {
               final dayName = DateFormat("EEEE").format(now);
               final timings = state.salahTimingsEntity;
 
-              final prayers = {
-                "Fajr": _parseTime(timings.fajr, now),
-                "Dhuhr": _parseTime(timings.dhuhr, now),
-                "Asr": _parseTime(timings.asr, now),
-                "Maghrib": _parseTime(timings.maghrib, now),
-                "Isha": _parseTime(timings.isha, now),
-              };
-
-              String nextPrayerName = "";
-              Duration timeLeft = Duration.zero;
-
-              for (var entry in prayers.entries) {
-                if (entry.value.isAfter(now)) {
-                  nextPrayerName = entry.key;
-                  timeLeft = entry.value.difference(now);
-                  break;
-                }
-              }
-
-              if (nextPrayerName.isEmpty) {
-                nextPrayerName = "Fajr";
-                timeLeft =
-                    prayers["Fajr"]!.add(const Duration(days: 1)).difference(now);
-              }
-
-              final hours = timeLeft.inHours;
-              final minutes = timeLeft.inMinutes % 60;
+              // Get next prayer using cubit logic
+              final cubit = context.read<TimeCubit>();
+              final nextPrayer = cubit.getNextPrayer(timings);
+              final hours = nextPrayer['timeLeft'].inHours;
+              final minutes = nextPrayer['timeLeft'].inMinutes % 60;
               final timeLeftStr =
                   "${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}";
 
@@ -199,7 +169,7 @@ class TimeScreen extends StatelessWidget {
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   Text(
-                                    "Next Prayer: $nextPrayerName - $timeLeftStr",
+                                    "Next Prayer: ${nextPrayer['name']} - $timeLeftStr",
                                     style: TextStyle(
                                       color: AppColors.secondaryColor,
                                       fontSize: 16,
