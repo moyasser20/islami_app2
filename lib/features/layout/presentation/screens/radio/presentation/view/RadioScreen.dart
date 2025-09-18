@@ -35,40 +35,37 @@ class _RadioScreenState extends State<RadioScreen> {
         ),
       ),
       child: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            const SizedBox(height: 12),
-            Image.asset(
-              "assets/images/islami_image.png",
-              height: size.height * 0.15,
-            ).setHorizontalPadding(context, 0.15),
-            const SizedBox(height: 20),
-
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                CustomTabButton(
-                  title: "Radio",
-                  isSelected: selectedRadio == 0,
-                  onTap: () => setState(() => selectedRadio = 0),
-                  selectedColor: AppColors.primaryColor,
-                  unselectedColor: AppColors.secondaryColor.withOpacity(0.7),
-                ),
-                CustomTabButton(
-                  title: "Reciters",
-                  isSelected: selectedRadio == 1,
-                  onTap: () => setState(() => selectedRadio = 1),
-                  selectedColor: AppColors.primaryColor,
-                  unselectedColor: AppColors.secondaryColor.withOpacity(0.7),
-                ),
-              ],
-            ),
-
-            const SizedBox(height: 20),
-
-            Expanded(
-              child: BlocConsumer<RadioCubit, RadioState>(
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const SizedBox(height: 12),
+              Image.asset(
+                "assets/images/islami_image.png",
+                height: size.height * 0.15,
+              ).setHorizontalPadding(context, 0.15),
+              const SizedBox(height: 20),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  CustomTabButton(
+                    title: "Radio",
+                    isSelected: selectedRadio == 0,
+                    onTap: () => setState(() => selectedRadio = 0),
+                    selectedColor: AppColors.primaryColor,
+                    unselectedColor: AppColors.secondaryColor.withOpacity(0.7),
+                  ),
+                  CustomTabButton(
+                    title: "Reciters",
+                    isSelected: selectedRadio == 1,
+                    onTap: () => setState(() => selectedRadio = 1),
+                    selectedColor: AppColors.primaryColor,
+                    unselectedColor: AppColors.secondaryColor.withOpacity(0.7),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
+              BlocConsumer<RadioCubit, RadioState>(
                 listener: (context, state) {
                   if (state is RadioErrorState) {
                     ScaffoldMessenger.of(context).showSnackBar(
@@ -85,19 +82,29 @@ class _RadioScreenState extends State<RadioScreen> {
                     if (selectedRadio == 0) {
                       final radios = state.radios;
                       return ListView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
                         itemCount: radios.length,
                         itemBuilder: (context, index) {
                           final radio = radios[index];
                           return RadioContainerWidget(
                             radioName: radio.name,
-                            radioUrl: radio.url,
+                            radioUrl: radio.url ?? "",
                           );
                         },
                       );
                     } else {
-                      return const Center(
-                        child: Text("Reciters Coming Soon..."),
-                      );
+                      final reciters = state.reciters;
+                      return ListView.builder(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemBuilder: (context, index) {
+                            final reciter = reciters[index];
+                            return RadioContainerWidget(
+                                radioName: reciter.name,
+                                radioUrl: reciter.moshaf.first.server ?? "");
+                          },
+                          itemCount: reciters.length);
                     }
                   } else if (state is RadioErrorState) {
                     return Center(
@@ -110,8 +117,8 @@ class _RadioScreenState extends State<RadioScreen> {
                   return const SizedBox();
                 },
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
