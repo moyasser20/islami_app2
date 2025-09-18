@@ -16,4 +16,6 @@ abstract class AppAssets {
   static const String sebhaIcn = "assets/icons/sebhaIcon.png";
   static const String radioIcn = "assets/icons/radioIcon.png";
   static const String timeIcn = "assets/icons/TTimeIcon.png";
+  static const String RadioOff = "assets/images/radio_off.png";
+  static const String RadioOn = "assets/images/radio_onn.png";
 }
