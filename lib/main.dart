@@ -3,6 +3,7 @@ import 'package:islami_app2/core/routes/app_routes_name.dart';
 import 'package:islami_app2/core/routes/routes.dart';
 
 import 'core/di/di.dart';
+import 'core/storage/local_storage_service.dart';
 
 void main() async {
 
@@ -10,6 +11,7 @@ void main() async {
 
   await configureDependencies();
 
+  await LocalStorageService.init();
   runApp(const MyApp());
 }
 
