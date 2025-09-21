@@ -228,9 +228,6 @@ lib/
 ## 👨‍💻 Authors
 Mohamed Yasser
 
-**Your Name**
-- This project was developed as a comprehensive Islamic application for Muslims worldwide
-
 ## 🙏 Acknowledgments
 
 - Flutter team for the amazing framework
@@ -239,5 +236,3 @@ Mohamed Yasser
 - All contributors who helped make this project possible
 
 ---
-
-**May Allah bless this project and make it beneficial for all Muslims worldwide. Ameen. 🤲**
