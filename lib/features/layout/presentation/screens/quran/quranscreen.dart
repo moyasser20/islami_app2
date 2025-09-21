@@ -22,7 +22,42 @@ class _QuranScreenState extends State<QuranScreen> {
   @override
   void initState() {
     super.initState();
+    _testLocalStorage();
     _loadRecentSurah();
+    
+    // Debug: Clear recent list for testing (remove this in production)
+    // _clearRecentList();
+  }
+
+  // Test method to verify LocalStorageService is working
+  _testLocalStorage() async {
+    print("=== Testing LocalStorageService ===");
+    try {
+      // Test saving
+      bool saved = await LocalStorageService.setList("test_key", ["test1", "test2"]);
+      print("Test save result: $saved");
+      
+      // Test loading
+      List<String>? loaded = LocalStorageService.getList("test_key");
+      print("Test load result: $loaded");
+      
+      // Clean up
+      await LocalStorageService.setList("test_key", []);
+      print("Test cleanup completed");
+    } catch (e) {
+      print("LocalStorageService test failed: $e");
+    }
+    print("=== LocalStorageService test completed ===");
+  }
+
+  // Debug method to clear recent list for testing
+  _clearRecentList() async {
+    await LocalStorageService.setList(LocalStorageKeys.recentSurah, []);
+    recentSurahIndexList.clear();
+    recentDataList.clear();
+    if (mounted) {
+      setState(() {});
+    }
   }
 
   List<Surah> recentDataList = [];
@@ -608,16 +643,37 @@ class _QuranScreenState extends State<QuranScreen> {
                 color: AppColors.titleTextColor,
               ),
             ).setHorizontalAndVerticalPadding(context, 0.05, 0.02),
-            SizedBox(
-              height: 150,
-              child: ListView.builder(
-                itemCount: recentDataList.length,
-                scrollDirection: Axis.horizontal,
-                itemBuilder: (context, index) => RecentCardWidget(
-                  mostRecentlyQuranModel: recentDataList[index],
-                ),
-              ),
-            ).setHorizontalPadding(context, 0.01),
+            Builder(
+              builder: (context) {
+                print("Building recent section with ${recentDataList.length} items");
+                return SizedBox(
+                  height: 150,
+                  child: recentDataList.isEmpty
+                      ? Center(
+                          child: Text(
+                            "No recent Surahs yet",
+                            style: TextStyle(
+                              fontFamily: "Janna",
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                              color: AppColors.titleTextColor.withOpacity(0.7),
+                            ),
+                          ),
+                        )
+                      : ListView.separated(
+                          itemCount: recentDataList.length,
+                          scrollDirection: Axis.horizontal,
+                          separatorBuilder: (context, index) => SizedBox(width: 8),
+                          itemBuilder: (context, index) {
+                            print("Building recent card $index: ${recentDataList[index].nameEnglish}");
+                            return RecentCardWidget(
+                              mostRecentlyQuranModel: recentDataList[index],
+                            );
+                          },
+                        ),
+                ).setHorizontalPadding(context, 0.01);
+              },
+            ),
             Text(
               "Suras List",
               style: TextStyle(
@@ -634,7 +690,10 @@ class _QuranScreenState extends State<QuranScreen> {
               physics: NeverScrollableScrollPhysics(),
               itemCount: quranSurahs.length,
               itemBuilder: (context, index) => GestureDetector(
-                onTap: () => _onSurahTap(index),
+                onTap: () {
+                  print("Surah tapped: $index - ${quranSurahs[index].nameEnglish}");
+                  _onSurahTap(index);
+                },
                 child: SuraCardWidget(surahModel: quranSurahs[index]),
               ),
               separatorBuilder: (BuildContext context, int index) =>
@@ -646,31 +705,119 @@ class _QuranScreenState extends State<QuranScreen> {
     );
   }
 
-  _onSurahTap(index) {
-    recentSurahIndexList.add(index.toString());
+  _onSurahTap(index) async {
+    print("=== _onSurahTap called with index: $index ===");
+    try {
+      if (index < 0 || index >= quranSurahs.length) {
+        print("Invalid Surah index: $index");
+        return;
+      }
 
-    LocalStorageService.setList(
-        LocalStorageKeys.recentSurah, recentSurahIndexList);
+      print("Surah details: ${quranSurahs[index].nameEnglish} (ID: ${quranSurahs[index].suraId})");
 
-    {
-      Navigator.pushNamed(
-        context,
-        AppRoutes.quranDetailsScreen,
-        arguments: quranSurahs[index],
-      );
+      // Remove if already exists to avoid duplicates
+      recentSurahIndexList.remove(index.toString());
+      print("After remove: $recentSurahIndexList");
+      
+      // Add to the beginning of the list
+      recentSurahIndexList.insert(0, index.toString());
+      print("After insert: $recentSurahIndexList");
+      
+      // Keep only the last 5 recent Surahs
+      if (recentSurahIndexList.length > 5) {
+        recentSurahIndexList = recentSurahIndexList.take(5).toList();
+        print("After limit: $recentSurahIndexList");
+      }
+
+      // Save to local storage
+      print("Saving to local storage...");
+      bool saved = await LocalStorageService.setList(
+          LocalStorageKeys.recentSurah, recentSurahIndexList);
+      print("Saved to storage: $saved");
+
+      // Update the recent data list and UI
+      print("Updating recent data list...");
+      _updateRecentDataList();
+
+      if (mounted) {
+        print("Navigating to details screen...");
+        Navigator.pushNamed(
+          context,
+          AppRoutes.quranDetailsScreen,
+          arguments: quranSurahs[index],
+        ).then((_) {
+          print("Returned from details screen, refreshing recent list...");
+          // Refresh recent list when returning from details screen
+          _loadRecentSurah();
+        });
+      }
+    } catch (e) {
+      print("Error in _onSurahTap: $e");
     }
+    print("=== _onSurahTap completed ===");
   }
 
   _loadRecentSurah() {
-    recentSurahIndexList =
-        LocalStorageService.getList(LocalStorageKeys.recentSurah) ?? [];
-
-    for(var index in recentSurahIndexList)
-      {
-        var indexInt= int.parse(index);
-        recentDataList.add(quranSurahs[indexInt]);
+    print("=== _loadRecentSurah called ===");
+    try {
+      recentSurahIndexList =
+          LocalStorageService.getList(LocalStorageKeys.recentSurah) ?? [];
+      print("Loaded from storage: $recentSurahIndexList");
+      _updateRecentDataList();
+    } catch (e) {
+      print("Error loading recent Surahs: $e");
+      recentSurahIndexList = [];
+      recentDataList.clear();
+      if (mounted) {
+        setState(() {});
       }
+    }
+    print("=== _loadRecentSurah completed ===");
+  }
 
-
+  _updateRecentDataList() {
+    print("=== _updateRecentDataList called ===");
+    try {
+      recentDataList.clear();
+      print("Cleared recentDataList");
+      
+      if (recentSurahIndexList.isNotEmpty) {
+        print("Processing ${recentSurahIndexList.length} recent indices");
+        for(var index in recentSurahIndexList) {
+          if (index != null && index.isNotEmpty) {
+            var indexInt = int.tryParse(index);
+            print("Parsing index '$index' -> $indexInt");
+            if (indexInt != null && indexInt >= 0 && indexInt < quranSurahs.length) {
+              recentDataList.add(quranSurahs[indexInt]);
+              print("Added Surah: ${quranSurahs[indexInt].nameEnglish}");
+            } else {
+              print("Invalid index: $indexInt (quranSurahs.length: ${quranSurahs.length})");
+            }
+          } else {
+            print("Skipping null/empty index: '$index'");
+          }
+        }
+      } else {
+        print("recentSurahIndexList is empty");
+      }
+      
+      // Debug print to see what's happening
+      print("Recent Surah Index List: $recentSurahIndexList");
+      print("Recent Data List Length: ${recentDataList.length}");
+      
+      if (mounted) {
+        print("Calling setState()");
+        setState(() {});
+      } else {
+        print("Widget not mounted, skipping setState()");
+      }
+    } catch (e) {
+      print("Error updating recent data list: $e");
+      recentDataList.clear();
+      if (mounted) {
+        setState(() {});
+      }
+    }
+    print("=== _updateRecentDataList completed ===");
   }
 }

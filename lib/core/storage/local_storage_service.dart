@@ -17,12 +17,12 @@ abstract class LocalStorageService {
   }
 
 
-  static Future<bool> setInt(String key, String value) async{
-    return await _sharedPreferences.setString(key, value);
+  static Future<bool> setInt(String key, int value) async{
+    return await _sharedPreferences.setInt(key, value);
   }
 
-  static Future<bool> setBool(String key, String value) async{
-    return await _sharedPreferences.setString(key, value);
+  static Future<bool> setBool(String key, bool value) async{
+    return await _sharedPreferences.setBool(key, value);
   }
 
   static  bool? getbool(String key){
